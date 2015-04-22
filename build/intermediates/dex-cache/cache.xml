@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Program Files\Android SDK\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="21.0.1"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67">
+        <dex dex="C:\Users\Lorenzo\AndroidStudioProjects\NfcGet\app\build\intermediates\pre-dexed\debug\support-v4-19.1.0-9f0d7c70574afb79b55b591f9a6823d6f9d4880d.jar" />
+    </item>
+
+</items>
