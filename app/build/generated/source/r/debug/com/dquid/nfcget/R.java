@@ -160,6 +160,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int Yellow=0x7f04008a;
         public static final int YellowGreen=0x7f04008b;
         public static final int black_overlay=0x7f04008c;
+        public static final int silica_blue=0x7f04008d;
+        public static final int silica_light_blue=0x7f04008e;
     }
     public static final class dimen {
         public static final int activity_horizontal_margin=0x7f050000;
@@ -169,36 +171,42 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class drawable {
         public static final int albero_bn=0x7f020000;
-        public static final int architech_color=0x7f020001;
-        public static final int dquid=0x7f020002;
-        public static final int dquid_background_2x=0x7f020003;
-        public static final int dquid_color=0x7f020004;
-        public static final int example=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int image_button_not_selected_border=0x7f020007;
-        public static final int image_button_selected_border=0x7f020008;
-        public static final int image_button_selector=0x7f020009;
-        public static final int nxp=0x7f02000a;
-        public static final int nxp_color=0x7f02000b;
-        public static final int nxp_color_bis=0x7f02000c;
-        public static final int progress_bar_custom=0x7f02000d;
-        public static final int sample_image=0x7f02000e;
-        public static final int silica=0x7f02000f;
+        public static final int architech_button=0x7f020001;
+        public static final int architech_color=0x7f020002;
+        public static final int dquid=0x7f020003;
+        public static final int dquid_background_2x=0x7f020004;
+        public static final int dquid_color=0x7f020005;
+        public static final int example=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int image_button_not_selected_border=0x7f020008;
+        public static final int image_button_selected_border=0x7f020009;
+        public static final int image_button_selector=0x7f02000a;
+        public static final int logo_rsr=0x7f02000b;
+        public static final int nxp=0x7f02000c;
+        public static final int nxp_button=0x7f02000d;
+        public static final int nxp_color=0x7f02000e;
+        public static final int nxp_color_bis=0x7f02000f;
+        public static final int progress_bar_custom=0x7f020010;
+        public static final int rsr_button=0x7f020011;
+        public static final int sample_image=0x7f020012;
+        public static final int silica=0x7f020013;
     }
     public static final class id {
-        public static final int MainLayout=0x7f090000;
-        public static final int action_settings=0x7f09000c;
-        public static final int comInfoHeaderText=0x7f090006;
-        public static final int comInfoLayout=0x7f090005;
-        public static final int comInfoText=0x7f090008;
-        public static final int comProgressBar=0x7f090007;
-        public static final int imageButton2=0x7f090003;
-        public static final int imageButton3=0x7f090004;
-        public static final int imageView2=0x7f09000a;
-        public static final int imageView3=0x7f09000b;
-        public static final int scrollView=0x7f090002;
-        public static final int textView1=0x7f090009;
-        public static final int textView2=0x7f090001;
+        public static final int MainLayout=0x7f090001;
+        public static final int action_settings=0x7f09000e;
+        public static final int comInfoHeaderText=0x7f090008;
+        public static final int comInfoLayout=0x7f090007;
+        public static final int comInfoText=0x7f09000a;
+        public static final int comProgressBar=0x7f090009;
+        public static final int imageButton1=0x7f090004;
+        public static final int imageButton2=0x7f090005;
+        public static final int imageButton3=0x7f090006;
+        public static final int imageHeader=0x7f090000;
+        public static final int imageView2=0x7f09000c;
+        public static final int imageView3=0x7f09000d;
+        public static final int scrollView=0x7f090003;
+        public static final int textView1=0x7f09000b;
+        public static final int textView2=0x7f090002;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

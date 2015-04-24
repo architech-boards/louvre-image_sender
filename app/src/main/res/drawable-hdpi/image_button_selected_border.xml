@@ -1,7 +1,9 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <solid android:color="@color/silica_light_blue"/>
     <stroke
-        android:width="3dp"
-        android:color="@color/Green" />
+        android:width="4dp"
+        android:color="@color/silica_blue"/>
     <padding
         android:left="1dp"
         android:top="1dp"

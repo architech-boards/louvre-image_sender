@@ -141,4 +141,6 @@
     <color name="Navy">#000080</color>
     <color name="Black">#000000</color>
     <color name="black_overlay">#66000000</color>
+    <color name="silica_light_blue">#75a0b3</color>
+    <color name="silica_blue">#00546c</color>
 </resources>

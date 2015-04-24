@@ -1,6 +1,7 @@
 package com.dquid.nfcget;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -8,9 +9,11 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.Image;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcManager;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +43,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 	PendingIntent pendingIntent;
 	IntentFilter writeTagFilters[];
 	boolean writeMode;
+    boolean isActivityResumed;
 	Context ctx;
 	Tag tag;
 	 
@@ -68,7 +72,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 
 
         // Select one of the image as default
-        getBytesFromMonochromeBitmap(R.drawable.nxp);
+        getBytesFromMonochromeBitmap(R.drawable.logo_rsr);
         msg = new NdefMessage(
                 new NdefRecord[] {
                         new NdefRecord( NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], pixels)
@@ -98,22 +102,39 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 //			}
 //		});
 
+        final ImageButton rsrButton = (ImageButton) findViewById(R.id.imageButton1);
 		final ImageButton nxpButton = (ImageButton) findViewById(R.id.imageButton2);
-//        nxpButton.setBackgroundColor(getResources().getColor(R.color.LightGreen));
 		final ImageButton silicaButton = (ImageButton) findViewById(R.id.imageButton3);
-        nxpButton.setSelected(true);
+        rsrButton.setSelected(true);
+        nxpButton.setSelected(false);
         silicaButton.setSelected(false);
 
 
-		
+        rsrButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                rsrButton.setSelected(true);
+                nxpButton.setSelected(false);
+                silicaButton.setSelected(false);
+
+                getBytesFromMonochromeBitmap(R.drawable.logo_rsr);
+                msg = new NdefMessage(
+                        new NdefRecord[] {
+                                new NdefRecord( NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], pixels)
+                        }
+                );
+
+            }
+        });
+
 		nxpButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				nxpButton.setSelected(true);
-//                nxpButton.setBackgroundColor(getResources().getColor(R.color.LightGreen));
+				rsrButton.setSelected(false);
+                nxpButton.setSelected(true);
 				silicaButton.setSelected(false);
-//                silicaButton.setBackgroundColor(getResources().getColor(R.color.LightGrey));
 				
 				getBytesFromMonochromeBitmap(R.drawable.nxp);
 				msg = new NdefMessage(
@@ -124,16 +145,14 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 	        	
 			}
 		});
-		
-		
+
 		silicaButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				nxpButton.setSelected(false);
-//                nxpButton.setBackgroundColor(getResources().getColor(R.color.LightGrey));
+				rsrButton.setSelected(false);
+                nxpButton.setSelected(false);
 				silicaButton.setSelected(true);
-//                silicaButton.setBackgroundColor(getResources().getColor(R.color.LightGreen));
 				
 				getBytesFromMonochromeBitmap(R.drawable.silica);
 				msg = new NdefMessage(
@@ -145,9 +164,31 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 			}
 		});
 
-		
+        // Block with an alert dialog in case NFC not present or not enabled
+        checkNfcEnabled();
+
 //		startActivity(new Intent(this, SplashActivity.class));
 	}
+
+    private void checkNfcEnabled()
+    {
+        //TODO check NFC enabled
+        NfcManager manager = (NfcManager) getSystemService(Context.NFC_SERVICE);
+        NfcAdapter adapter = manager.getDefaultAdapter();
+        if (adapter == null || !adapter.isEnabled()) {
+            // 1. Instantiate an AlertDialog.Builder with its constructor
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            // 2. Chain together various setter methods to set the dialog characteristics
+            builder.setMessage("NFC not present or not enabled")
+                    .setTitle("NFC Warning");
+
+            // 3. Get the AlertDialog from create()
+            AlertDialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        }
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -255,22 +296,24 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 	public void onPause(){
 		super.onPause();
     	Log.d(TAG, "onPause");
+        isActivityResumed = false;
 		WriteModeOff();
+        Screen.releaseScreenOn();;
 	}
     
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume - action: " + getIntent().getAction());
+        isActivityResumed = true;
 		WriteModeOn();
-        Screen.releaseScreenOn();
     }
-    
-	
+
+
 	byte[] getBytesFromMonochromeBitmap(int resid){
 		Bitmap bmp = BitmapFactory.decodeResource(getResources(), resid);
-		StringBuffer str = new StringBuffer();
-		int intVal;
+		StringBuffer str;
+        int intVal;
 		byte byteVal;
 		int h = 0, w = 0, i=0;
 		int imageWidth = bmp.getWidth();
@@ -305,7 +348,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 				
 				intVal = Integer.parseInt(str.toString(), 2);
 				byteVal = (byte) intVal;
-				Log.d(TAG, "i: " + i + " - " + Integer.toHexString(intVal)  + " - w: " + w + " - h: " + h);
+				//Log.d(TAG, "i: " + i + " - " + Integer.toHexString(intVal)  + " - w: " + w + " - h: " + h);
 				pixels[i++] = byteVal;
 				
 			}
@@ -372,7 +415,10 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 	
 	private void WriteModeOn(){
 		writeMode = true;
-		adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
+        if(isActivityResumed) // Foreground dispatched can be activated only from resumed activity+
+        {
+            adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
+        }
 	}
 
 	private void WriteModeOff(){
