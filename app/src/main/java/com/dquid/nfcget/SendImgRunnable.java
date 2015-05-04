@@ -5,8 +5,6 @@ import android.nfc.Tag;
 
 import java.io.IOException;
 
-//TODO test casi di errore
-
 /**
  * SendImgRunnable.java
  *

@@ -1,6 +1,7 @@
 package com.dquid.nfcget.util;
 
-import android.os.PowerManager;
+import android.view.Window;
+import android.view.WindowManager;
 
 /**
  * Screen.java
@@ -12,36 +13,21 @@ import android.os.PowerManager;
  */
 public class Screen
 {
-    static protected PowerManager.WakeLock wakeLock;
-
     /**
      * Avoid the screen to turn off till a releaseScreenOn call
-     * @param powerManager Power manager service
      */
-    public static void keepScreenOn(Object powerManager)
+    public static void keepScreenOn(Window window)
     {
-        // This code together with the one in onDestroy()
-        // will make the screen be always on until this Activity gets destroyed.
-        if(wakeLock == null)
-        {
-            PowerManager pm = (PowerManager)powerManager;
-            wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
-        }
-        wakeLock.acquire();
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
 
     /**
      * Release the screen on blocking let the screen to turn off after this call
+     * @param window window view
      */
-    public static void releaseScreenOn()
+    public static void releaseScreenOn(Window window)
     {
-        if(wakeLock != null)
-        {
-            if(wakeLock.isHeld())
-            {
-                wakeLock.release();
-            }
-        }
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 }

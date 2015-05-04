@@ -16,6 +16,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -27,14 +28,11 @@ import android.widget.Toast;
 
 import com.dquid.nfcget.util.Screen;
 
-//TODO inserire immagine logo RSR e altri
-//TODO documentare codice
 
 public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCallback,
                                                       SendImgRunnable.SendImgCallback
 {
 	String TAG = "myTag";
-	NfcAdapter mNfcAdapter;
 	byte[] pixels;
 	int pixelsLen;
 	NdefMessage msg;
@@ -53,16 +51,13 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 		setContentView(R.layout.activity_main);		
 		
 		// Check for available NFC Adapter
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (mNfcAdapter == null) {
+        adapter = NfcAdapter.getDefaultAdapter(this);
+        if (adapter == null) {
         	this.showLongToast("NFC is not available");
             finish();
             return;
         }
-        
-		
 
-        adapter = NfcAdapter.getDefaultAdapter(this);
 		pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 		IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
 		tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
@@ -172,7 +167,6 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 
     private void checkNfcEnabled()
     {
-        //TODO check NFC enabled
         NfcManager manager = (NfcManager) getSystemService(Context.NFC_SERVICE);
         NfcAdapter adapter = manager.getDefaultAdapter();
         if (adapter == null || !adapter.isEnabled()) {
@@ -287,7 +281,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 //
 //		this.showShortToast("Tag Written");
 
-        Screen.keepScreenOn(getSystemService(Context.POWER_SERVICE));
+        Screen.keepScreenOn(getWindow());
         new Thread(new SendImgRunnable(tag, pixels, pixelsLen, this, this)).start();
     }
     
@@ -297,8 +291,10 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 		super.onPause();
     	Log.d(TAG, "onPause");
         isActivityResumed = false;
-		WriteModeOff();
-        Screen.releaseScreenOn();;
+
+        WriteModeOff(false);
+
+        Screen.releaseScreenOn(getWindow());
 	}
     
     @Override
@@ -306,7 +302,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
         super.onResume();
         Log.d(TAG, "onResume - action: " + getIntent().getAction());
         isActivityResumed = true;
-		WriteModeOn();
+		WriteModeOn(false);
     }
 
 
@@ -409,21 +405,54 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 		
 		return out.toString();
 	}
-	
-	
-	
-	
-	private void WriteModeOn(){
-		writeMode = true;
-        if(isActivityResumed) // Foreground dispatched can be activated only from resumed activity+
+
+
+	private void WriteModeOn(boolean forceMainThread)
+    {
+        if(isActivityResumed) // Foreground dispatched can be activated only from resumed activity
         {
-            adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
+            if(forceMainThread)
+            {
+                // Get a handler that can be used to post to the main thread
+                Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
+                final Activity mainActivity = this;
+                mainHandler.post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        adapter.enableForegroundDispatch(mainActivity, pendingIntent, writeTagFilters, null);
+                    }
+                });
+            }
+            else{
+                adapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
+            }
+            writeMode = true;
         }
 	}
 
-	private void WriteModeOff(){
-		writeMode = false;
-		adapter.disableForegroundDispatch(this);
+
+    private void WriteModeOff(boolean forceMainThread)
+    {
+        if(forceMainThread)
+        {
+            // Get a handler that can be used to post to the main thread
+            Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
+            final Activity mainActivity = this;
+            mainHandler.post(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    adapter.disableForegroundDispatch(mainActivity);
+                }
+            });
+        }
+        else{
+            adapter.disableForegroundDispatch(this);
+        }
+        writeMode = false;
 	}
 
     @Override
@@ -452,7 +481,12 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
                 }
 
                 comProgressBar.setMax(blocksToWrite);
-                comProgressBar.setSecondaryProgress(blockIndex);
+                if(blockIndex > blocksToWrite){
+                    comProgressBar.setSecondaryProgress(blocksToWrite);
+                }
+                else{
+                    comProgressBar.setSecondaryProgress(blockIndex);
+                }
                 comInfoText.setText("Block " + blockIndex + " of " + blocksToWrite);
             }
         });
@@ -461,7 +495,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
     @Override
     public void onImgSent()
     {
-        WriteModeOff();
+        WriteModeOff(true);
 
         final LinearLayout comLayout = (LinearLayout)findViewById(R.id.comInfoLayout);
 
@@ -470,6 +504,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
             @Override
             public void run()
             {
+
                 TextView comInfoHeaderText = (TextView)findViewById(R.id.comInfoHeaderText);
                 TextView comInfoText = (TextView)findViewById(R.id.comInfoText);
 
@@ -490,7 +525,12 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
             public void run()
             {
                 comProgressBar.setMax(totProgress);
-                comProgressBar.setProgress(currProgress);
+                if(currProgress > totProgress){
+                    comProgressBar.setProgress(totProgress);
+                }
+                else{
+                    comProgressBar.setProgress(currProgress);
+                }
             }
         });
     }
@@ -498,7 +538,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
     @Override
     public void onBoardScreenUpdated()
     {
-        WriteModeOn();
+        WriteModeOn(true);
 
         this.showLongToast("The board's screen should be updated, please remove the phone");
 
@@ -517,7 +557,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
     @Override
     public void onSentErr(Exception exc)
     {
-        WriteModeOn();
+        WriteModeOn(true);
 
         this.showLongToast("Error occurred: " + exc.getMessage());
 

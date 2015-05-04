@@ -7,8 +7,6 @@ import android.os.Handler;
 import com.dquid.nfcget.util.SystemUiHider;
 
 
-//TODO sistemare immagini (ora sono molto sgranate)
-
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
