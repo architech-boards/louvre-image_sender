@@ -46,6 +46,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="48dp"
         android:contentDescription="@string/hello_world"
-        android:src="@drawable/nxp_color_bis" />
+        android:src="@drawable/nxp_button" />
 
 </RelativeLayout>

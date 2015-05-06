@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.Image;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -42,7 +41,6 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
 	IntentFilter writeTagFilters[];
 	boolean writeMode;
     boolean isActivityResumed;
-	Context ctx;
 	Tag tag;
 	 
 	@Override
@@ -509,7 +507,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
                 TextView comInfoText = (TextView)findViewById(R.id.comInfoText);
 
                 comInfoHeaderText.setText("Waiting for board's screen update ...");
-                comInfoText.setText("Keep the phone on the tag");
+                comInfoText.setText("Keep the device on the tag");
             }
         });
     }
@@ -540,7 +538,7 @@ public class MainActivity extends Activity implements NXPTagUtils.WriteEepromCal
     {
         WriteModeOn(true);
 
-        this.showLongToast("The board's screen should be updated, please remove the phone");
+        this.showLongToast("The board's screen should be updated, please remove the device");
 
         final LinearLayout comLayout = (LinearLayout)findViewById(R.id.comInfoLayout);
 
